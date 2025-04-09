@@ -1,3 +1,5 @@
+// -*- mode: Bluespec; -*-
+
 // Inspired on Hillel Wayne's Demo: 
 // https://www.hillelwayne.com/post/business-case-formal-methods
 module offer {
