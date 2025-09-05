@@ -6,11 +6,11 @@ module offer {
   import basicSpells.* from "lib/basicSpells"
 
   type TicketId = int
-  type Passanger = str
-  type Offer = { ticket: TicketId, giver: Passanger, taker: Passanger }
+  type Passenger = str
+  type Offer = { ticket: TicketId, giver: Passenger, taker: Passenger }
 
   var offers: Set[Offer]
-  var ticket_holders: TicketId -> Passanger
+  var ticket_holders: TicketId -> Passenger
 
   pure def new_offer(ticket, giver, taker) = {
     { ticket: ticket, giver: giver, taker: taker }
