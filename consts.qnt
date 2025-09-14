@@ -1,5 +1,4 @@
 module consts {
-    // TODO: put better names
     val INIT_TICKETS = Map(
         1 -> "Alice",
         2 -> "Bob",
