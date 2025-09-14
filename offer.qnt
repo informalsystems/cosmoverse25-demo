@@ -1,6 +1,6 @@
 // -*- mode: Bluespec; -*-
 
-// Inspired on Hillel Wayne's Demo: 
+// Inspired by Hillel Wayne's Demo: 
 // https://www.hillelwayne.com/post/business-case-formal-methods
 // 
 // Models a ticket offering system for Steirischer Herbst Festival. 
@@ -28,14 +28,14 @@ module offer {
   val holders = ticket_holders.values()
 
   action propose(ticket, giver, taker) = all {
-    giver != taker,
-    ticket_holders.get(ticket) == giver,
+    require(giver != taker),
+    require(ticket_holders.get(ticket) == giver),
     offers' = offers.union(Set(new_offer(ticket, giver, taker))),
     ticket_holders' = ticket_holders,
   } 
 
   action accept(offer) = all {
-    offers.contains(offer),
+    require(offers.contains(offer)),
     offers' = offers.exclude(Set(offer)),
     ticket_holders' = ticket_holders.set(offer.ticket, offer.taker)
   }
@@ -49,7 +49,7 @@ module offer {
     // Either one of the existing offers was accepted
     all {
       // We can only accept if there are any offers
-      offers.size() > 0,
+      require(offers.size() > 0),
       nondet offer = offers.oneOf()
       accept(offer)
     },
@@ -69,7 +69,7 @@ module offer {
 
   
   /* Properties */
-
+  // If there is an offer, then the giver must own the ticket
   val offer_safety = offers.forall(offer => {
     ticket_holders.get(offer.ticket) == offer.giver
   })
