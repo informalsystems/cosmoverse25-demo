@@ -12,7 +12,6 @@
 module offerFest {
   import basicSpells.* from "lib/basicSpells"
   import consts.* from "consts"
-  import utils.* from "utils"
 
   type TicketId = int
   type Visitor = str
@@ -32,16 +31,15 @@ module offerFest {
   // Accept an already existing offer
   // action accept(offer)
 
+  // INIT
   // action init
 
+  // STEP
   // Either an existing offer is accepted or a new offer is proposed
   // action step
 
   /* Finding interesting scenarios */
 
-  val single_visitor_owns_all_tickets = size(ticket_holders.values()) == 1
-
-  val counterexample = not(single_visitor_owns_all_tickets)
 
   
   /* Properties */
@@ -54,15 +52,15 @@ module offerFest {
 
   /* Runs */
 
-  run stealing =
-    init
-    // Bob offers his ticket to both Eve and Diane
-    .then(propose(2, "Bob", "Eve"))
-    .then(propose(2, "Bob", "Diane"))
-    // Eve accepts the offer
-    .then(accept(offers.filter(o => o.taker == "Eve").getOnlyElement()))
-    // Diane also accepts the offer
-    .then(accept(offers.filter(o => o.taker == "Diane").getOnlyElement()))
-    // Expectation: Eve lost the ticket, Diane stole it!
-    .expect(not(ticket_holders.values().contains("Eve")))
+  // run stealing =
+  //   init
+  //   // Bob offers his ticket to both Eve and himself
+  //   .then(propose(2, "Bob", "Eve"))
+  //   .then(propose(2, "Bob", "Bob"))
+  //   // Eve accepts the offer
+  //   .then(accept(offers.filter(o => o.taker == "Eve").getOnlyElement()))
+  //   // Bob also accepts the offer
+  //   .then(accept(offers.filter(o => o.taker == "Bob").getOnlyElement()))
+  //   // Expectation: Eve lost the ticket, Bob stole it!
+  //   .expect(not(ticket_holders.values().contains("Eve")))
 }
