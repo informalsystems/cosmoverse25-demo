@@ -1,18 +1,8 @@
-# Demo for the Quint Launch Party
 
-This is the code for the demo presented at the Quint Launch Party event on April
-8th 2025. The model was inspired by a demo Hillel Wayne presents on his blog post titled
-[The Business Case for Formal
-Methods](https://www.hillelwayne.com/post/business-case-formal-methods/), which
-I really like and recommend reading!
+This repository contains useful materials for the Quint Cosmoverse workshop "Beyond Thinking Hard"
 
-# Context
 
-We are launching the Quint rocket into space, and there are limited tickets. Our speakers have tickets for them and a few extra ones, which they can offer to other people. Once a person accepts an offer, they become the holder of that ticket.
-
-This offering strategy is not bullet-proof, and Quint makes it easy to find out why.
-
-# Using this specification
+# Installation
 
 First of all, you'll need to install Quint. You can follow the detailed instructions [here](https://quint-lang.org/docs/getting-started), but, for short:
 
@@ -20,8 +10,18 @@ First of all, you'll need to install Quint. You can follow the detailed instruct
 npm i @informalsystems/quint -g
 ```
 
+If using VSCode, you may also want to install this two extensions:
+ - [Quint extension](https://marketplace.visualstudio.com/items?itemName=informal.quint-vscode)
+ - [Traces Viewer extension](https://marketplace.visualstudio.com/items?itemName=informal.itf-trace-viewer)
+
+# Useful Resources
+ - [Quint cheatsheet](https://quint-lang.org/quint-cheatsheet.pdf)
+ - [Language Basics](https://quint-lang.org/docs/language-basics)
+ - [Tutorials](https://quint-lang.org/docs/lessons/hello)
+
 ## Interact with the model in the REPL
 
+Let's use `offer.qnt` as an example model.
 To load this file and module in the REPL, execute:
 
 ```sh
@@ -36,24 +36,7 @@ true
 >>> offers
 Set()
 >>> ticket_holders
-Map(1 -> "Gabriela", 2 -> "Julian", 3 -> "Giuliano", 4 -> "Gabriela", 5 -> "Gabriela")
->>> propose(4, "Gabriela", "Oshan")
-true
->>> offers
-Set({ giver: "Gabriela", taker: "Oshan", ticket: 4 })
->>> ticket_holders
-Map(1 -> "Gabriela", 2 -> "Julian", 3 -> "Giuliano", 4 -> "Gabriela", 5 -> "Gabriela")
->>> val offer = offers.getOnlyElement()
-
->>> offer
-{ giver: "Gabriela", taker: "Oshan", ticket: 4 }
->>> accept(offer)
-true
->>> offers
-Set()
->>> ticket_holders.get(4)
-"Oshan"
->>>
+...
 ```
 
 ## Check some properties in the simulator
@@ -62,17 +45,17 @@ This section covers a few ways to use `quint run`.
 
 ### An interesting scenario
 
-I like to start running my specifications with some desirable scenarios and make sure my model can evolve to a point where something interesting happens. To achieve that, I write and invariant stating "this interesting thing is never true" and then check it. If my model is working as I expect, it should find a violation to this invariant, and the violation should be one of my desirable scenarios. Read more on the [docs](https://quint-lang.org/docs/checking-properties#inspecting-interesting-traces-with---invariant):
+When starting with specifications, it makes sense to define some desirable/possible scenarios to make sure the model can evolve to a point where something interesting happens. To achieve that, we can write an invariant stating "this interesting thing is never true" and then check it. If the model is working as expected, it should find a violation to this invariant, and the violation should be one of my desirable scenarios. Read more on the [docs](https://quint-lang.org/docs/checking-properties#inspecting-interesting-traces-with---invariant):
 
-This is the property I created:
+This is one such property:
 
 ```bluespec
-val gabriela_owns_all_tickets = ticket_holders.values() == Set("Gabriela")
+val single_visitor_owns_all_tickets = size(ticket_holders.values()) == 1
 
-val counterexample = not(gabriela_owns_all_tickets)
+  val counterexample = not(single_visitor_owns_all_tickets)
 ```
 
-And this is how I can run it:
+And this is how we can run it:
 
 ```sh
 quint run offer.qnt --invariant=counterexample
@@ -80,21 +63,21 @@ quint run offer.qnt --invariant=counterexample
 
 ## Safety properties
 
-Now that I see that my model is evolving in a desirable way, I want to check that nothing bad ever happens. I define two properties that should be true for every single state:
+Now that we see the model is evolving in a desirable way, we can check that nothing bad ever happens. We define two properties that should be true for every single state:
 
 `offer_safety`: If there is an offer from someone, that someone should be the holder of the ticket.
 ```bluespec
 val offer_safety = offers.forall(offer => {
-  ticket_holders.get(offer.ticket) == offer.giver
-})
+    ticket_holders.get(offer.ticket) == offer.giver
+  })
 ```
 
 `no_tickets_lost`: No tickets should be created or destroyed, there should be always the same amount of tickets as there was on the initial state (which is five in this model).
 ```bluespec
-val no_tickets_lost = tickets.size() == 5
+val no_tickets_lost = tickets.size() == INIT_TICKETS.keys().size()
 ```
 
-I can run them with:
+We can run them with:
 
 ```sh
 quint run offer.qnt --invariant=offer_safety
@@ -106,13 +89,6 @@ quint run offer.qnt --invariant=no_tickets_lost
 
 The `offer_safety` property is actually violated! Seems like there is a problem with this model, which we can understand better by inspecting the trace given by Quint. You can try to fix it as an exercise (learn more about writing Quint in the [docs](https://quint-lang.org/docs/language-basics)).
 
-### Rust backend
-
-As of version `v0.24.0` (released at the launch), you can also run the same simulation using the Rust backend:
-
-```sh
-quint run offer.qnt --invariant=offer_safety --backend=rust
-```
 
 ## Writing runs and testing
 
@@ -121,18 +97,18 @@ Sometimes, we want to make it explicit that some scenario can happen. For this m
 ```bluespec
   run stealing =
     init
-    // Julian offers his ticket to both Oshan and Gabriela
-    .then(propose(2, "Julian", "Oshan"))
-    .then(propose(2, "Julian", "Gabriela"))
-    // Oshan accepts the offer
-    .then(accept(offers.filter(o => o.taker == "Oshan").getOnlyElement()))
-    // Gabriela also accepts the offer
-    .then(accept(offers.filter(o => o.taker == "Gabriela").getOnlyElement()))
-    // Expectation: Oshan lost the ticket, Gabriela stole it!
-    .expect(not(ticket_holders.values().contains("Oshan")))
+    // Bob offers his ticket to both Eve and Diane
+    .then(propose(2, "Bob", "Eve"))
+    .then(propose(2, "Bob", "Diane"))
+    // Eve accepts the offer
+    .then(accept(offers.filter(o => o.taker == "Eve").getOnlyElement()))
+    // Diane also accepts the offer
+    .then(accept(offers.filter(o => o.taker == "Diane").getOnlyElement()))
+    // Expectation: Eve lost the ticket, Diane stole it!
+    .expect(not(ticket_holders.values().contains("Eve")))
 ```
 
-I can test it, ensuring these steps can happen and that my expectation holds, by using `quint test`:
+We can test it, ensuring these steps can happen and that my expectation holds, by using `quint test`:
 
 ```sh
 quint test offer.qnt --match=stealing

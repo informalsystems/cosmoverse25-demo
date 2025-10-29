@@ -3,12 +3,12 @@
 // Inspired by Hillel Wayne's Demo: 
 // https://www.hillelwayne.com/post/business-case-formal-methods
 // 
-// Models a ticket offering system for Steirischer Herbst Festival. 
+// Models a ticket offering system for Cosmoverse 
 // Some people have more than one ticket and they can make an offer to others.
 // If the offer is accepted, the ticket is transferred from the giver to the taker.
 // (We keep the model very simple, so we do not model prices, bidding, etc.)
 // 
-// The model contains a serious bug.
+// The model contains a bug.
 module offer {
   import basicSpells.* from "lib/basicSpells"
   import consts.* from "consts"
@@ -28,7 +28,7 @@ module offer {
   val holders = ticket_holders.values()
 
   action propose(ticket, giver, taker) = all {
-    require(giver != taker),
+    // require(giver != taker),
     require(ticket_holders.get(ticket) == giver),
     offers' = offers.union(Set(new_offer(ticket, giver, taker))),
     ticket_holders' = ticket_holders,
