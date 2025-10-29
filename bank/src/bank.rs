@@ -107,7 +107,6 @@ pub fn sell_investment(
             .balances
             .entry(seller)
             .and_modify(|curr| *curr += investment.amount.clone());
-        // bank_state.investments.remove(&investment_id);
         return None;
     }
     Some("No investment with this id".to_string())
