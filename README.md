@@ -130,3 +130,11 @@ quint compile offer.qnt --target=tlaplus
 
 More details on the model checkers can be found [here](https://quint-lang.org/docs/model-checkers). There's also work in progress to make integration with TLC as seamless as the one with Apalache (see [this script](https://github.com/informalsystems/quint/blob/main/tlc/check_with_tlc.sh) for now).
 
+# Binding Models and Code
+Have a look at the `bank` example. 
+[THIS DESCRIPTION WILL BE EXTENDED]
+
+# Want to know more?
+ - all these examples (and more) can be found at [quint-sandbox](https://github.com/informalsystems/quint-sandbox/tree/main) repo
+ - a list of larger, production Quint models is [here](https://quint-lang.org/docs/use-cases)
+ - common Quint expression, useful across different projects, are collected inside [Spells](https://github.com/informalsystems/quint/tree/main/examples/spells) repository
