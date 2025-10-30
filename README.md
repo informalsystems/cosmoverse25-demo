@@ -132,7 +132,8 @@ More details on the model checkers can be found [here](https://quint-lang.org/do
 
 # Binding Models and Code
 Have a look at the `bank` example. 
-[THIS DESCRIPTION WILL BE EXTENDED]
+There is a `src/bank.rs` implementation.
+We write the model  in `bank.qnt` for it and try to find places in which it does not match the code, running `test.sh`.
 
 # Want to know more?
  - all these examples (and more) can be found at [quint-sandbox](https://github.com/informalsystems/quint-sandbox/tree/main) repo
